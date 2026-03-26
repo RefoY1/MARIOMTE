@@ -671,6 +671,32 @@
   }
   .qg-done-btn:hover { border-color: var(--pink-light); color: var(--pink-light); }
 
+
+  /* ── Music player mini mode when chat is open ── */
+  #music-player.mini {
+    width: 52px !important;
+    padding: .4rem !important;
+    gap: 0 !important;
+    overflow: hidden;
+    bottom: .7rem;
+    left: .7rem;
+    transform: translateX(0) translateY(0) !important;
+    border-radius: 50% !important;
+    justify-content: center;
+  }
+  #music-player.mini .player-info,
+  #music-player.mini .player-controls .player-btn:not(.main-btn) {
+    display: none !important;
+  }
+  #music-player.mini .player-art-wrap {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  #music-player.mini.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0) translateY(0) !important;
+  }
 </style></head>
 <body>
 
@@ -764,7 +790,7 @@
     <div class="fade-box d1" data-obs>
       <div class="r-box">
         <div class="box-label">📅 التاريخ</div>
-        <div class="date-value">📅 19 / 3 / 2026</div>
+        <div class="date-value">📅 29 / 9 / 2025</div>
       </div>
     </div>
 
@@ -895,7 +921,7 @@
   <!-- ══ SECTION 4: Photo Cards ══ -->
   <div class="photo-section">
 
-    <div class="photo-card" data-photo>
+     <div class="photo-card" data-photo>
       <img src="https://k.top4top.io/p_3730a4hg41.jpg" alt="" onerror="this.parentElement.style.display='none'">
       <div class="photo-card-caption">😍🥰 ببص ف عينيك بنسى الدنيا</div>
     </div>
@@ -964,7 +990,7 @@
         <span class="locked-arrow">❯</span>
       </div>
     </div>
-    <div class="fade-box d4" data-obs style="font-size:.7rem;color:#a855f788;text-align:center;">DESIGNED WITH LOVE BY Refo</div>
+    <div class="fade-box d4" data-obs style="font-size:.7rem;color:#a855f788;text-align:center;">DESIGNED WITH LOVE BY MOHAMED</div>
   </div>
 
 </div><!-- end result-page -->
@@ -1229,6 +1255,7 @@
   function openChat() {
     userName = document.getElementById('result-name').textContent || 'حبيبتي';
     document.getElementById('chat-page').classList.add('open');
+    document.getElementById('music-player').classList.add('mini');
     chatOpen = true;
     document.getElementById('chat-notif').style.display = 'flex';
     document.getElementById('chat-messages-wrap').classList.remove('open');
@@ -1237,6 +1264,7 @@
 
   function closeChat() {
     document.getElementById('chat-page').classList.remove('open');
+    document.getElementById('music-player').classList.remove('mini');
     chatOpen = false;
     if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
   }

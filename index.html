@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جاهزة 🤔</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --pink: #e91e8c; --pink-light: #ff6eb4; --purple-deep: #1a0a2e; }
+  body { font-family: 'Cairo','Tajawal',sans-serif; background: var(--purple-deep); min-height: 100vh; overflow: hidden; }
+
+  /* FLOATING HEARTS — global fixed, behind everything except video */
+  .hearts-global { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .heart-float { position: absolute; opacity: 0.55; animation: floatHeart linear infinite; }
+  @keyframes floatHeart {
+    0%   { transform: translateY(110vh) rotate(0deg); opacity: 0.7; }
+    85%  { opacity: 0.45; }
+    100% { transform: translateY(-15vh) rotate(20deg); opacity: 0; }
+  }
+  /* hearts inside video section (kept for video layer) */
+  .hearts-bg { position: absolute; inset: 0; pointer-events: none; z-index: 2; overflow: hidden; display:none; }
+
+  /* LOADING */
+  #loading-screen { position:fixed; inset:0; background:radial-gradient(ellipse at 50% 60%,#3d1080 0%,#1a0a2e 70%); display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:100; transition:opacity .8s ease,transform .8s ease; }
+  #loading-screen.hide { opacity:0; transform:scale(1.05); pointer-events:none; }
+  .loading-title { font-size:2rem; font-weight:900; color:#fff; margin-bottom:2.5rem; animation:pulse-text 2s ease-in-out infinite; }
+  @keyframes pulse-text { 0%,100%{text-shadow:0 0 20px #e91e8c88} 50%{text-shadow:0 0 50px #e91e8ccc,0 0 80px #e91e8c55} }
+  .spinner-wrap { position:relative; width:130px; height:130px; display:flex; align-items:center; justify-content:center; margin-bottom:2rem; }
+  .ring { position:absolute; inset:0; border-radius:50%; border:4px solid transparent; border-top-color:var(--pink); border-right-color:var(--pink-light); animation:spin 1.4s linear infinite; }
+  .ring-2 { inset:10px; border-top-color:#a855f7; border-right-color:transparent; border-bottom-color:#a855f7; animation:spin 2s linear infinite reverse; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .heart-center { font-size:2.5rem; animation:heartbeat 1.2s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{transform:scale(1)} 30%{transform:scale(1.25)} 60%{transform:scale(0.95)} }
+  .loading-dots { display:flex; gap:8px; margin-top:.5rem; }
+  .dot { width:10px; height:10px; border-radius:50%; background:var(--pink-light); animation:dotBounce 1.2s ease-in-out infinite; }
+  .dot:nth-child(2){animation-delay:.2s} .dot:nth-child(3){animation-delay:.4s}
+  @keyframes dotBounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1.2);opacity:1} }
+
+  /* MAIN PAGE */
+  #main-page { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:10; opacity:0; transform:scale(0.92); transition:opacity .8s ease .3s,transform .8s ease .3s; pointer-events:none; }
+  #main-page.show { opacity:1; transform:scale(1); pointer-events:all; }
+  .card { background:linear-gradient(145deg,#2d1060cc,#1a0a2eee); border:1.5px solid #a855f755; border-radius:28px; padding:2.5rem 2rem; width:min(380px,92vw); text-align:center; backdrop-filter:blur(16px); box-shadow:0 8px 60px #e91e8c33; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 0%,#e91e8c22 0%,transparent 70%); pointer-events:none; }
+  .avatar-wrap { width:90px; height:90px; border-radius:50%; margin:0 auto 1.2rem; background:linear-gradient(135deg,var(--pink),#a855f7); padding:3px; box-shadow:0 0 30px #e91e8c66; }
+  .avatar-inner { width:100%; height:100%; border-radius:50%; background:linear-gradient(135deg,#3d1080,#1a0a2e); display:flex; align-items:center; justify-content:center; font-size:2.2rem; }
+  .card-title { font-size:2rem; font-weight:900; color:#fff; margin-bottom:.5rem; }
+  .card-sub { font-size:.95rem; color:#d4a0ff; margin-bottom:1.8rem; line-height:1.6; }
+  .name-input { width:100%; background:linear-gradient(135deg,#3d108066,#2d106044); border:1.5px solid #a855f755; border-radius:50px; padding:.9rem 1.5rem; font-size:1.05rem; font-family:'Cairo',sans-serif; color:#fff; text-align:center; outline:none; transition:border-color .3s,box-shadow .3s; letter-spacing:.35em; margin-bottom:1.5rem; display:block; }
+  .name-input::placeholder { color:#9a6fcc; }
+  .name-input:focus { border-color:var(--pink); box-shadow:0 0 20px #e91e8c44; }
+  .confirm-btn { width:100%; background:linear-gradient(135deg,var(--pink),#a855f7); border:none; border-radius:50px; padding:1rem 2rem; font-size:1.1rem; font-weight:700; font-family:'Cairo',sans-serif; color:#fff; cursor:pointer; box-shadow:0 4px 30px #e91e8c55; transition:transform .2s,box-shadow .2s; }
+  .confirm-btn:hover { transform:translateY(-2px) scale(1.02); box-shadow:0 8px 40px #e91e8c88; }
+  .confirm-btn:active { transform:scale(0.97); }
+
+  /* RESULT PAGE */
+  #result-page { position:fixed; inset:0; z-index:20; opacity:0; transition:opacity .8s ease; pointer-events:none; overflow-y:auto; overflow-x:hidden; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
+  #result-page.show { opacity:1; pointer-events:all; }
+
+  /* SECTION 1 — video */
+  .section-video { position:relative; width:100%; height:100vh; overflow:hidden; }
+  #bg-video { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; }
+  .video-overlay { position:absolute; inset:0; background:linear-gradient(to bottom,#00000033 0%,#00000011 40%,#00000077 100%); z-index:1; }
+  .video-content { position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:2rem; gap:.7rem; }
+  .res-top-text { font-size:1rem; color:#fff; background:#00000055; padding:.45rem 1.4rem; border-radius:50px; backdrop-filter:blur(6px); text-shadow:0 1px 6px #000; margin-bottom:.4rem; font-weight:700; }
+  .res-name-row { display:flex; align-items:center; gap:.5rem; }
+  .res-heart { font-size:2.8rem; animation:heartbeat 1.2s ease-in-out infinite; display:inline-block; }
+  .res-name { font-size:clamp(2.4rem,9vw,3.4rem); font-weight:900; color:#fff; letter-spacing:.15em; text-shadow:0 2px 20px #00000099,0 0 40px #e91e8c55; font-family:'Cairo',sans-serif; }
+  .res-line { font-size:1.15rem; font-weight:700; color:#fff; text-shadow:0 2px 14px #000000cc; }
+  .res-bottom { font-size:1.15rem; font-weight:700; color:#fff; text-shadow:0 2px 14px #000000cc; margin-top:.3rem; }
+  .scroll-hint { position:absolute; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:5; display:flex; flex-direction:column; align-items:center; gap:4px; color:#ffffffaa; font-size:.8rem; animation:bounceDown 1.5s ease-in-out infinite; }
+  .scroll-hint svg { width:28px; height:28px; opacity:.7; }
+  @keyframes bounceDown { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+
+  /* SECTIONS 2 & 3 shared */
+  .scroll-section {
+    position:relative; width:100%; min-height:100vh;
+    background:linear-gradient(180deg,#1a0a2e 0%,#2d1060 50%,#1a0a2e 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:3rem 1.5rem; gap:1.2rem; overflow:hidden;
+  }
+  .scroll-section::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 50% 30%,#e91e8c22 0%,transparent 60%); pointer-events:none; }
+
+  /* fade-in boxes */
+  .fade-box { opacity:0; transform:translateY(30px); transition:opacity .7s ease,transform .7s ease; position:relative; z-index:2; width:min(340px,90vw); }
+  .fade-box.d1{transition-delay:.1s} .fade-box.d2{transition-delay:.25s} .fade-box.d3{transition-delay:.4s} .fade-box.d4{transition-delay:.55s} .fade-box.d5{transition-delay:.7s} .fade-box.d6{transition-delay:.85s}
+  .fade-box.visible { opacity:1; transform:translateY(0); }
+
+  /* generic rounded box */
+  .r-box {
+    width:100%;
+    background:linear-gradient(135deg,#3d108077,#2d106055);
+    border:1.5px solid #a855f755;
+    border-radius:20px;
+    padding:1.2rem 2rem;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    box-shadow:0 4px 30px #e91e8c22;
+    color:#fff;
+    font-size:1.15rem;
+    font-weight:700;
+    line-height:1.6;
+  }
+  .box-label { font-size:.85rem; color:#d4a0ff; margin-bottom:.5rem; font-weight:600; }
+  .date-value { font-size:1.4rem; font-weight:900; color:#fff; letter-spacing:.08em; text-shadow:0 0 20px #e91e8c66; display:flex; align-items:center; justify-content:center; gap:.5rem; }
+  .big-title { font-size:clamp(1.6rem,6vw,2.2rem); font-weight:900; color:#fff; text-align:center; text-shadow:0 0 30px #e91e8c88; width:min(340px,90vw); }
+
+  /* counter */
+  .counter-box { width:100%; background:linear-gradient(135deg,#3d108077,#2d106055); border:1.5px solid #a855f755; border-radius:20px; padding:1.3rem 1rem 1rem; backdrop-filter:blur(10px); box-shadow:0 4px 30px #e91e8c22; }
+  .counter-label { font-size:.85rem; color:#d4a0ff; font-weight:600; text-align:center; margin-bottom:.9rem; display:flex; align-items:center; justify-content:center; gap:.4rem; }
+  .counter-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.5rem; margin-bottom:.5rem; }
+  .counter-grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem; width:calc(50% + .25rem); margin:0 auto; }
+  .unit-box { background:linear-gradient(135deg,#4a1a8888,#2d106066); border:1px solid #a855f744; border-radius:12px; padding:.55rem .3rem .35rem; text-align:center; }
+  .unit-num { font-size:1.6rem; font-weight:900; color:#fff; line-height:1; display:block; text-shadow:0 0 15px #e91e8c77; }
+  .unit-lbl { font-size:.7rem; color:#c4a0ee; margin-top:.2rem; display:block; }
+
+  /* feeling boxes */
+  .feel-title { font-size:1.2rem; font-weight:900; color:#fff; text-align:center; text-shadow:0 0 20px #e91e8c88; }
+  .feel-box {
+    width:100%;
+    background:linear-gradient(135deg,#3d108077,#2d106055);
+    border:1.5px solid #a855f744;
+    border-radius:50px;
+    padding:1rem 2rem;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    color:#fff;
+    font-size:1.2rem;
+    font-weight:700;
+    display:flex; align-items:center; justify-content:center; gap:.6rem;
+    box-shadow:0 4px 20px #e91e8c18;
+  }
+  .feel-icon { font-size:1.3rem; }
+
+  .back-btn { background:transparent; border:1.5px solid #a855f755; border-radius:50px; padding:.6rem 1.8rem; color:#9a6fcc; font-family:'Cairo',sans-serif; font-size:.9rem; cursor:pointer; transition:border-color .3s,color .3s; }
+  .back-btn:hover { border-color:var(--pink-light); color:var(--pink-light); }
+
+  /* ── FLIP CARDS SECTION ── */
+  .flip-section-title {
+    font-size:clamp(1.3rem,5vw,1.8rem); font-weight:900; color:#fff;
+    text-align:center; text-shadow:0 0 30px #e91e8c88;
+    position:relative; z-index:2;
+  }
+  .flip-section-sub {
+    font-size:.9rem; color:#d4a0ff; text-align:center;
+    position:relative; z-index:2; margin-top:-.4rem;
+  }
+  .cards-grid {
+    display:grid; grid-template-columns:1fr 1fr; gap:.9rem;
+    width:min(360px,92vw); position:relative; z-index:2;
+  }
+  .flip-card-wrap {
+    perspective:900px;
+    height:160px;
+  }
+  .flip-card {
+    width:100%; height:100%;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .7s cubic-bezier(.4,0,.2,1);
+    cursor:pointer;
+    border-radius:20px;
+  }
+  .flip-card.flipped { transform:rotateY(180deg); }
+  .flip-front, .flip-back {
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    border-radius:20px;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:.5rem;
+    padding:.8rem;
+    text-align:center;
+    font-family:'Cairo','Tajawal',sans-serif;
+    font-weight:700;
+    color:#fff;
+  }
+  .flip-front {
+    background:linear-gradient(145deg,#3d108099,#2d106077);
+    border:1.5px solid #a855f766;
+    box-shadow:0 4px 30px #e91e8c33;
+    backdrop-filter:blur(12px);
+  }
+  .flip-back {
+    background:linear-gradient(145deg,#e91e8c99,#a855f799);
+    border:1.5px solid #ff6eb477;
+    box-shadow:0 4px 30px #e91e8c55;
+    transform:rotateY(180deg);
+    font-size:1rem; line-height:1.5;
+  }
+  .flip-front-icon { font-size:2rem; animation:heartbeat 1.4s ease-in-out infinite; }
+  .flip-front-text { font-size:1.05rem; font-weight:900; }
+  .flip-back-text { font-size:.95rem; font-weight:700; line-height:1.6; }
+  .flip-hint {
+    font-size:.75rem; color:#c4a0ee88; position:relative; z-index:2;
+    animation:pulse-text 2.5s ease-in-out infinite;
+  }
+
+  /* ── MUSIC PLAYER ── */
+  #music-player {
+    position: fixed;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 999;
+    width: min(340px, 92vw);
+    background: linear-gradient(135deg, #2d106099, #1a0a2ecc);
+    border: 1.5px solid #a855f766;
+    border-radius: 50px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px #e91e8c44;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .5rem .8rem .5rem .6rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .6s ease, transform .6s ease;
+    transform: translateX(-50%) translateY(20px);
+  }
+  #music-player.show {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* spinning album art */
+  .player-art-wrap {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 2px solid #e91e8c88;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 0 14px #e91e8c55;
+  }
+  .player-art {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    animation: spinArt 8s linear infinite;
+    animation-play-state: paused;
+  }
+  .player-art.playing { animation-play-state: running; }
+  @keyframes spinArt { to { transform: rotate(360deg); } }
+
+  /* scrolling title */
+  .player-info {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .player-title-wrap {
+    overflow: hidden;
+    width: 100%;
+  }
+  .player-title {
+    font-size: .82rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    display: inline-block;
+    animation: scrollTitle 10s linear infinite;
+  }
+  @keyframes scrollTitle {
+    0%   { transform: translateX(100%); opacity: 0; }
+    8%   { opacity: 1; }
+    50%  { transform: translateX(0%); opacity: 1; }
+    80%  { transform: translateX(-100%); opacity: 0; }
+    100% { transform: translateX(100%); opacity: 0; }
+  }
+
+  /* progress bar */
+  .player-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 3px;
+    cursor: pointer;
+  }
+  .player-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--pink), #a855f7);
+    border-radius: 4px;
+    transition: width .5s linear;
+  }
+
+  /* controls */
+  .player-controls { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+  .player-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, #e91e8c55, #a855f755);
+    color: #fff;
+    font-size: .85rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background .2s, transform .15s;
+    flex-shrink: 0;
+  }
+  .player-btn:hover { background: linear-gradient(135deg, #e91e8c99, #a855f799); transform: scale(1.1); }
+  .player-btn.main-btn { width: 38px; height: 38px; font-size: 1rem; background: linear-gradient(135deg, var(--pink), #a855f7); box-shadow: 0 0 16px #e91e8c55; }
+
+  /* ── PHOTO CARDS SECTION ── */
+  .photo-section {
+    position: relative; width: 100%;
+    background: linear-gradient(180deg,#1a0a2e 0%,#2d1060 50%,#1a0a2e 100%);
+    padding: 3rem 1.2rem 5rem;
+    display: flex; flex-direction: column; align-items: center; gap: 2rem;
+    overflow: hidden;
+  }
+  .photo-section::before {
+    content:''; position:absolute; inset:0;
+    background: radial-gradient(ellipse at 50% 30%,#e91e8c22 0%,transparent 60%);
+    pointer-events:none;
+  }
+  .photo-section-title {
+    font-size: clamp(1.4rem,5vw,2rem); font-weight:900; color:#fff;
+    text-align:center; text-shadow: 0 0 30px #e91e8c88;
+    position:relative; z-index:2;
+  }
+  .photo-card {
+    width: min(340px, 92vw);
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(145deg,#2d106088,#1a0a2ecc);
+    border: 1.5px solid #a855f766;
+    box-shadow: 0 6px 40px #e91e8c33;
+    position: relative; z-index:2;
+    opacity: 0;
+    transform: translateY(70px);
+    transition: opacity .75s ease, transform .75s ease;
+  }
+  .photo-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .photo-card img {
+    width: 100%; height: 260px;
+    object-fit: cover; display: block;
+  }
+  .photo-card-caption {
+    padding: 1rem 1.2rem 1.1rem;
+    font-size: 1.05rem; font-weight: 700;
+    color: #fff; text-align: center; line-height: 1.6;
+    text-shadow: 0 1px 8px #00000088;
+  }
+
+  /* ── GAME BUTTON ── */
+  .game-btn {
+    width: 100%; padding: 1.1rem 2rem;
+    background: linear-gradient(135deg, var(--pink), #a855f7);
+    border: none; border-radius: 50px;
+    font-size: 1.15rem; font-weight: 900;
+    font-family: 'Cairo','Tajawal',sans-serif;
+    color: #fff; cursor: pointer;
+    box-shadow: 0 4px 30px #e91e8c66;
+    animation: pulse-btn 2s ease-in-out infinite;
+    transition: transform .2s;
+  }
+  .game-btn:hover { transform: scale(1.03); }
+  @keyframes pulse-btn {
+    0%,100% { box-shadow: 0 4px 30px #e91e8c55; }
+    50%      { box-shadow: 0 4px 60px #e91e8ccc, 0 0 80px #a855f766; }
+  }
+
+  /* ── CHAT PAGE ── */
+  #chat-page {
+    position: fixed; inset: 0; z-index: 200;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: flex-end;
+    background: #00000088;
+    backdrop-filter: blur(4px);
+  }
+  #chat-page.open { display: flex; }
+
+  /* notification bubble */
+  .chat-notif {
+    position: absolute; top: 2.5rem; left: 50%;
+    transform: translateX(-50%);
+    width: min(340px,92vw);
+    background: linear-gradient(135deg,#2d106099,#1a0a2eee);
+    border: 1.5px solid #a855f766;
+    border-radius: 18px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 30px #e91e8c44;
+    display: flex; align-items: center; gap: .8rem;
+    padding: .8rem 1rem;
+    animation: slideDown .5s ease;
+  }
+  @keyframes slideDown { from{transform:translateX(-50%) translateY(-30px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+  .notif-avatar { font-size: 2rem; flex-shrink:0; }
+  .notif-body { flex:1; min-width:0; }
+  .notif-name { font-size: .8rem; color: #d4a0ff; font-weight:700; }
+  .notif-msg  { font-size: .95rem; color: #fff; font-weight:700; margin-top:2px; }
+  .notif-reply-btn {
+    background: linear-gradient(135deg,var(--pink),#a855f7);
+    border: none; border-radius: 20px;
+    padding: .4rem .9rem; color:#fff;
+    font-size: .8rem; font-weight:700;
+    font-family:'Cairo',sans-serif; cursor:pointer;
+    white-space: nowrap; flex-shrink:0;
+  }
+
+  /* chat messages wrap */
+  .chat-messages-wrap {
+    width: min(400px,100vw);
+    height: 100vh;
+    background: #0d0520;
+    display: none;
+    flex-direction: column;
+  }
+  .chat-messages-wrap.open { display: flex; }
+
+  .chat-header {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .8rem 1rem;
+    background: linear-gradient(135deg,#2d1060,#1a0a2e);
+    border-bottom: 1px solid #a855f733;
+    flex-shrink: 0;
+  }
+  .chat-close-btn {
+    background: transparent; border: none; color: #d4a0ff;
+    font-size: 1.1rem; cursor: pointer; padding: .2rem .5rem;
+    border-radius: 50%; transition: background .2s;
+  }
+  .chat-close-btn:hover { background: #a855f722; }
+  .chat-header-info { flex:1; }
+  .chat-header-name { font-size: 1rem; font-weight:900; color:#fff; }
+  .chat-header-status { font-size: .72rem; color: #a3e635; }
+  .chat-header-avatar { font-size: 2rem; }
+
+  .chat-msgs {
+    flex: 1; overflow-y: auto; padding: 1rem .8rem;
+    display: flex; flex-direction: column; gap: .7rem;
+    scroll-behavior: smooth;
+  }
+  .chat-msgs::-webkit-scrollbar { width: 4px; }
+  .chat-msgs::-webkit-scrollbar-thumb { background: #a855f744; border-radius:4px; }
+
+  /* message bubbles */
+  .msg-row { display:flex; flex-direction:column; }
+  .msg-row.them { align-items: flex-end; }
+  .msg-row.me   { align-items: flex-start; }
+  .msg-bubble {
+    max-width: 75%; padding: .65rem 1rem;
+    border-radius: 18px; font-size: .95rem;
+    font-weight: 600; line-height: 1.5;
+    word-break: break-word;
+  }
+  .msg-row.them .msg-bubble {
+    background: linear-gradient(135deg,#e91e8c,#a855f7);
+    color: #fff; border-bottom-right-radius: 4px;
+  }
+  .msg-row.me .msg-bubble {
+    background: #2d106088; border: 1px solid #a855f755;
+    color: #fff; border-bottom-left-radius: 4px;
+  }
+  .msg-time { font-size: .65rem; color: #a855f788; margin-top: 3px; padding: 0 .3rem; }
+  .msg-sender { font-size: .7rem; color: #d4a0ffaa; margin-bottom: 2px; padding: 0 .3rem; }
+
+  /* input */
+  .chat-input-row {
+    display: flex; align-items: center; gap: .5rem;
+    padding: .7rem .8rem;
+    background: #1a0a2e;
+    border-top: 1px solid #a855f733;
+    flex-shrink: 0;
+  }
+  .chat-input {
+    flex:1; background: #2d106066; border: 1px solid #a855f744;
+    border-radius: 30px; padding: .65rem 1.1rem;
+    font-size: .95rem; font-family:'Cairo',sans-serif;
+    color: #fff; outline: none;
+  }
+  .chat-input::placeholder { color: #9a6fcc; }
+  .chat-input:focus { border-color: var(--pink); }
+  .chat-voice-btn, .chat-send-btn {
+    width: 38px; height: 38px; border-radius: 50%; border:none;
+    background: linear-gradient(135deg,var(--pink),#a855f7);
+    color:#fff; font-size:1rem; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .typing-indicator {
+    display:flex; gap:4px; align-items:center;
+    padding: .5rem .8rem;
+  }
+  .typing-dot {
+    width:7px; height:7px; border-radius:50%;
+    background:#a855f7; animation:typingBounce 1.2s ease-in-out infinite;
+  }
+  .typing-dot:nth-child(2){animation-delay:.2s}
+  .typing-dot:nth-child(3){animation-delay:.4s}
+  @keyframes typingBounce{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1.2);opacity:1}}
+
+  /* ── LOCKED BOX ── */
+  .locked-box {
+    width: 100%;
+    background: linear-gradient(135deg, #3d108077, #2d106055);
+    border: 1.5px solid #a855f766;
+    border-radius: 50px;
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: .7rem;
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+    box-shadow: 0 4px 20px #e91e8c22;
+  }
+  .locked-box:hover { transform: scale(1.02); box-shadow: 0 4px 30px #e91e8c55; }
+  .locked-icon { font-size: 1.3rem; }
+  .locked-text { flex: 1; font-size: .95rem; font-weight: 700; color: #d4a0ff; font-family: 'Cairo',sans-serif; }
+  .locked-arrow { font-size: 1.1rem; color: #e91e8c; font-weight: 900; }
+
+  /* ── QUESTIONS GAME OVERLAY ── */
+  #qgame-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(10,4,26,.97);
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 2rem 1.2rem;
+    overflow: hidden;
+  }
+  #qgame-overlay.open { display: flex !important; }
+
+  /* Floating hearts inside overlay */
+  .qg-hearts { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .qg-heart { position: absolute; font-size: 1.4rem; opacity: 0; animation: qgFloat linear infinite; }
+  @keyframes qgFloat {
+    0%   { transform: translateY(110vh) rotate(0deg); opacity: .6; }
+    100% { transform: translateY(-10vh)  rotate(25deg); opacity: 0; }
+  }
+
+  /* Intro screen */
+  #qg-intro {
+    text-align: center; position: relative; z-index: 2;
+    animation: fadeInUp .5s ease;
+  }
+  .qg-intro-icon { font-size: 3.5rem; animation: heartbeat 1.2s ease-in-out infinite; margin-bottom: 1rem; display: block; }
+  .qg-intro-title { font-size: 1.6rem; font-weight: 900; color: #fff; margin-bottom: .7rem; font-family: 'Cairo',sans-serif; text-shadow: 0 0 30px #e91e8c88; }
+  .qg-intro-sub { font-size: 1rem; color: #d4a0ff; margin-bottom: 2rem; line-height: 1.6; font-family: 'Cairo',sans-serif; }
+  .qg-start-btn {
+    background: linear-gradient(135deg, var(--pink), #a855f7);
+    border: none; border-radius: 50px;
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem; font-weight: 900;
+    font-family: 'Cairo',sans-serif;
+    color: #fff; cursor: pointer;
+    box-shadow: 0 4px 30px #e91e8c66;
+    animation: pulse-btn 2s ease-in-out infinite;
+    transition: transform .2s;
+  }
+  .qg-start-btn:hover { transform: scale(1.04); }
+  .qg-close-btn {
+    position: absolute; top: 1.2rem; left: 1.2rem;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #ffffff18; border: none;
+    color: #fff; font-size: 1.1rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+  }
+
+  /* Question card */
+  #qg-question {
+    display: none; position: relative; z-index: 2;
+    width: min(360px, 92vw);
+    animation: fadeInUp .5s ease;
+  }
+  @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+
+  .qg-progress {
+    display: flex; gap: .4rem; justify-content: center; margin-bottom: 1.5rem;
+  }
+  .qg-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: #ffffff22; transition: background .4s;
+  }
+  .qg-dot.done { background: var(--pink); box-shadow: 0 0 8px #e91e8c88; }
+  .qg-dot.active { background: #fff; box-shadow: 0 0 10px #ffffff88; }
+
+  .qg-card {
+    background: linear-gradient(145deg, #2d106099, #1a0a2eee);
+    border: 1.5px solid #a855f766;
+    border-radius: 24px;
+    padding: 2rem 1.5rem 1.5rem;
+    text-align: center;
+    backdrop-filter: blur(16px);
+    box-shadow: 0 8px 40px #e91e8c33;
+  }
+  .qg-q-icon { font-size: 2.2rem; margin-bottom: .8rem; display: block; }
+  .qg-q-text {
+    font-size: 1.2rem; font-weight: 900; color: #fff;
+    margin-bottom: 1.2rem; line-height: 1.6;
+    font-family: 'Cairo',sans-serif;
+    text-shadow: 0 0 20px #e91e8c44;
+  }
+  .qg-textarea {
+    width: 100%;
+    background: #ffffff0d;
+    border: 1.5px solid #a855f755;
+    border-radius: 16px;
+    padding: 1rem;
+    font-size: 1rem; font-family: 'Cairo',sans-serif;
+    color: #fff; resize: none; outline: none;
+    min-height: 90px;
+    transition: border-color .3s;
+    text-align: right;
+  }
+  .qg-textarea::placeholder { color: #9a6fcc; }
+  .qg-textarea:focus { border-color: var(--pink); }
+  .qg-confirm-btn {
+    width: 100%; margin-top: 1rem;
+    background: linear-gradient(135deg, var(--pink), #a855f7);
+    border: none; border-radius: 50px;
+    padding: .95rem;
+    font-size: 1.05rem; font-weight: 900;
+    font-family: 'Cairo',sans-serif;
+    color: #fff; cursor: pointer;
+    box-shadow: 0 4px 25px #e91e8c55;
+    transition: transform .2s, opacity .2s;
+  }
+  .qg-confirm-btn:hover { transform: scale(1.02); }
+  .qg-confirm-btn:disabled { opacity: .5; cursor: default; }
+
+  /* Success animation */
+  #qg-success {
+    display: none; position: relative; z-index: 2;
+    text-align: center;
+    animation: fadeInUp .4s ease;
+  }
+  .qg-check-wrap {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: radial-gradient(#1a5c1a, #0a2e0a);
+    border: 3px solid #4caf50;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 40px #4caf5066;
+    animation: checkPop .5s cubic-bezier(.175,.885,.32,1.275);
+  }
+  @keyframes checkPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .qg-check-svg { width: 48px; height: 48px; }
+  .qg-check-path {
+    stroke: #4caf50; stroke-width: 3; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 60; stroke-dashoffset: 60;
+    animation: drawCheck .5s ease .2s forwards;
+  }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  .qg-saved-text { font-size: 1.3rem; font-weight: 900; color: #fff; font-family: 'Cairo',sans-serif; }
+  .qg-sparkle { font-size: 1.5rem; }
+
+  /* Done screen */
+  #qg-done {
+    display: none; position: relative; z-index: 2;
+    text-align: center; animation: fadeInUp .5s ease;
+  }
+  .qg-done-icon { font-size: 3rem; margin-bottom: 1rem; display: block; animation: heartbeat 1.2s ease-in-out infinite; }
+  .qg-done-title { font-size: 1.5rem; font-weight: 900; color: #fff; margin-bottom: .5rem; font-family: 'Cairo',sans-serif; text-shadow: 0 0 30px #e91e8c88; }
+  .qg-done-sub { font-size: .95rem; color: #d4a0ff; font-family: 'Cairo',sans-serif; margin-bottom: 1.5rem; }
+  .qg-done-btn {
+    background: transparent; border: 1.5px solid #a855f766;
+    border-radius: 50px; padding: .7rem 2rem;
+    color: #d4a0ff; font-family: 'Cairo',sans-serif;
+    font-size: .95rem; cursor: pointer;
+    transition: border-color .3s, color .3s;
+  }
+  .qg-done-btn:hover { border-color: var(--pink-light); color: var(--pink-light); }
+
+</style></head>
+<body>
+
+<!-- GLOBAL FLOATING HEARTS (everywhere except video) -->
+<div class="hearts-global" id="hearts-global"></div>
+
+<!-- MUSIC PLAYER -->
+<div id="music-player">
+  <div class="player-art-wrap">
+    <!-- ضع رابط الصورة هنا -->
+    <img class="player-art" id="player-art" src="https://c.top4top.io/p_3736t5wvv1.jpg" alt="cover" onerror="this.style.background='linear-gradient(135deg,#e91e8c,#a855f7)';this.src=''">
+  </div>
+  <div class="player-info">
+    <div class="player-title-wrap">
+      <span class="player-title" id="player-title">كل سنة يا حبيبي ❤️</span>
+    </div>
+    <div class="player-progress" id="player-progress" onclick="seekAudio(event)">
+      <div class="player-progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+  <div class="player-controls">
+    <button class="player-btn main-btn" id="play-pause-btn" onclick="togglePlay()">▶</button>
+  </div>
+</div>
+
+<!-- hidden audio -->
+<audio id="bg-audio">
+  <!-- ضع رابط الأغنية هنا -->
+  <source src="https://e.top4top.io/m_3736d5vhc1.mp3" type="audio/mpeg">
+</audio>
+
+
+<!-- LOADING -->
+<div id="loading-screen">
+  <div class="loading-title">ثواني يا روحي معلش 😅❤️</div>
+  <div class="spinner-wrap">
+    <div class="ring"></div><div class="ring ring-2"></div>
+    <div class="heart-center">💗</div>
+  </div>
+  <div class="loading-dots">
+    <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main-page">
+  <div class="card">
+    <div class="avatar-wrap"><div class="avatar-inner">🤔</div></div>
+    <div class="card-title">جاهزة 🤔</div>
+    <div class="card-sub">كل اللي هنا هيفضل بيني وبينك طول العمر ❤️</div>
+    <input class="name-input" id="name-input" type="text" placeholder="❤️اكتبي اسمك❤️" maxlength="20" />
+    <button class="confirm-btn" onclick="showResult()">تأكيدي ❤️</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-page">
+
+  <!-- ══ SECTION 1: Video ══ -->
+  <div class="section-video">
+    <div class="hearts-bg" id="hearts-bg"></div>
+    <video id="bg-video" autoplay loop muted playsinline>
+      <source src="https://k.top4top.io/m_3736c4aip1.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+    <div class="video-content">
+      <div class="res-top-text">❤️ قررت افرحك بطريقتي ❤️</div>
+      <div class="res-name-row">
+        <span class="res-heart">❤️</span>
+        <span class="res-name" id="result-name"></span>
+        <span class="res-heart">❤️</span>
+      </div>
+      <div class="res-line">❤️ كل سنة وانتي منورة حياتي ❤️</div>
+      <div class="res-bottom">❤️ حياتي ابتدت بيكي ❤️</div>
+    </div>
+    <div class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2: Date + Counter ══ -->
+  <div class="scroll-section">
+
+    <div class="fade-box" data-obs>
+      <div class="r-box">
+        <div class="box-label">اللحظة اللي مش هنسيها</div>
+        ❤️ اول مرة اتقابلنا ❤️
+      </div>
+    </div>
+
+    <div class="fade-box d1" data-obs>
+      <div class="r-box">
+        <div class="box-label">📅 التاريخ</div>
+        <div class="date-value">📅 19 / 3 / 2026</div>
+      </div>
+    </div>
+
+    <div class="fade-box d2" data-obs>
+      <div class="big-title">❤️ بداية عمري معاكي</div>
+    </div>
+
+    <div class="fade-box d3" data-obs>
+      <div class="counter-box">
+        <div class="counter-label">🕐 هيفضل شغال طول ما احنا مع بعض ❤️</div>
+        <div class="counter-grid">
+          <div class="unit-box"><span class="unit-num" id="c-years">0</span><span class="unit-lbl">سنة</span></div>
+          <div class="unit-box"><span class="unit-num" id="c-months">0</span><span class="unit-lbl">شهر</span></div>
+          <div class="unit-box"><span class="unit-num" id="c-days">0</span><span class="unit-lbl">يوم</span></div>
+          <div class="unit-box"><span class="unit-num" id="c-hours">0</span><span class="unit-lbl">ساعة</span></div>
+        </div>
+        <div class="counter-grid-2">
+          <div class="unit-box"><span class="unit-num" id="c-mins">0</span><span class="unit-lbl">دقيقة</span></div>
+          <div class="unit-box"><span class="unit-num" id="c-secs">0</span><span class="unit-lbl">ثانية</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ SECTION 3: Feelings + Flip Cards ══ -->
+  <div class="scroll-section">
+
+    <div class="fade-box" data-obs>
+      <div class="feel-title">اقفي هنا شوية متجريش 😄</div>
+    </div>
+
+    <div class="fade-box d1" data-obs>
+      <div class="feel-box">
+        <span class="feel-icon">♥️</span>
+        بحبك
+        <span class="feel-icon">♥️</span>
+      </div>
+    </div>
+
+    <div class="fade-box d2" data-obs>
+      <div class="feel-box">
+        <span class="feel-icon">✨</span>
+        بموت فيكي
+        <span class="feel-icon">✨</span>
+      </div>
+    </div>
+
+    <div class="fade-box d3" data-obs>
+      <div class="feel-box">
+        <span class="feel-icon">🤍</span>
+        بعشقك
+        <span class="feel-icon">🤍</span>
+      </div>
+    </div>
+
+    <div class="fade-box d4" data-obs>
+      <div class="flip-section-title">❤️ دوسي على الكروت ❤️ 😉</div>
+    </div>
+    <div class="fade-box d5" data-obs>
+      <div class="flip-hint">اضغطي على كل كارت تشوفي رسالة 💌</div>
+    </div>
+
+    <div class="fade-box d6" data-obs>
+      <div class="cards-grid">
+
+        <!-- Card 1 -->
+        <div class="flip-card-wrap">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-front">
+              <span class="flip-front-icon">♥️</span>
+              <span class="flip-front-text">كل</span>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-text">كل يوم بحبك أكتر من اللي قبله 💕</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="flip-card-wrap">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-front">
+              <span class="flip-front-icon">♥️</span>
+              <span class="flip-front-text">سنة</span>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-text">كل سنة وانتي أغلى حاجة في حياتي 🌹</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="flip-card-wrap">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-front">
+              <span class="flip-front-icon">♥️</span>
+              <span class="flip-front-text">وانتي</span>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-text">وانتي جنبي كل حاجة بتبقى تمام ❤️</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="flip-card-wrap">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')">
+            <div class="flip-front">
+              <span class="flip-front-icon">♥️</span>
+              <span class="flip-front-text" style="font-size:.85rem;line-height:1.4;">معايا يا روح قلبي ونفضل مع بعض العمركله</span>
+            </div>
+            <div class="flip-back">
+              <span class="flip-back-text">مش هتلاقي حد يحبك زيي، وأنا مش هلاقي غيرك 🤍💗</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="fade-box" data-obs style="transition-delay:.95s">
+      <button class="back-btn" onclick="goBack()">← رجوع</button>
+    </div>
+
+  </div>
+
+  <!-- ══ SECTION 4: Photo Cards ══ -->
+  <div class="photo-section">
+
+    <div class="photo-card" data-photo>
+      <img src="https://k.top4top.io/p_3730a4hg41.jpg" alt="" onerror="this.parentElement.style.display='none'">
+      <div class="photo-card-caption">😍🥰 ببص ف عينيك بنسى الدنيا</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <img src="https://h.top4top.io/p_3730a8opw1.jpg" alt="" onerror="this.parentElement.style.display='none'">
+      <div class="photo-card-caption">🤍💕 ما هو مفيش جمال كدا بردو</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <img src="https://h.top4top.io/p_37302ewei1.jpg" alt="" onerror="this.parentElement.style.display='none'">
+      <div class="photo-card-caption">😍 اكسجين ياجدعان</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <img src="https://j.top4top.io/p_3736e6hnj1.jpg" alt="" onerror="this.parentElement.style.display='none'">
+      <div class="photo-card-caption">💪❤️ موزتي حقها تدلع</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://j.top4top.io/p_3736e6hnj1.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">❤️ بحبك يا نورعيني</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://j.top4top.io/p_3736e6hnj1.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">😂❤️ الترينداالات بتاعتنا دي</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://k.top4top.io/p_3730a4hg41.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">❤️ بنتي قبل ماتكوني حبيبتي</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://k.top4top.io/p_3730a4hg41.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">❤️❤️ انتي العيد وانتي فرحتي</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://k.top4top.io/p_3730a4hg41.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">❤️ بحبك دي قلبلة أوي عليكي انا بعشقك</div>
+    </div>
+
+    <div class="photo-card" data-photo>
+      <video src="https://k.top4top.io/p_3730a4hg41.jpg" playsinline preload="metadata" loop muted volume="0" data-autovideo style="width:100%;height:260px;object-fit:cover;display:block;background:#000;" onerror="this.parentElement.style.display='none'"></video>
+      <div class="photo-card-caption">😍🥰 ببص ف عينيك بنسى الدنيا</div>
+    </div>
+
+  </div>
+
+  <!-- ══ SECTION 5: Questions Game ══ -->
+  <div class="scroll-section" id="questions-section">
+    <div class="fade-box" data-obs>
+      <div class="feel-title"> فقرة الأسئلة يلا ❤️<br>❤️❤️❤️❤️❤️</div>
+    </div>
+    <div class="fade-box d2" data-obs>
+      <button class="game-btn" onclick="openChat()">
+        🎮 يلا ادخلي اللعبة 🔥
+      </button>
+    </div>
+    <div class="fade-box d3" data-obs>
+      <div class="locked-box" onclick="openQGame()">
+        <span class="locked-icon">🤍</span>
+        <span class="locked-text">لسه مخلصتش دوسي هنا 😂🤩</span>
+        <span class="locked-arrow">❯</span>
+      </div>
+    </div>
+    <div class="fade-box d4" data-obs style="font-size:.7rem;color:#a855f788;text-align:center;">DESIGNED WITH LOVE BY Refo</div>
+  </div>
+
+</div><!-- end result-page -->
+
+<!-- ══ QUESTIONS GAME OVERLAY ══ -->
+<div id="qgame-overlay" style="display:none;">
+
+  <!-- floating hearts -->
+  <div class="qg-hearts" id="qg-hearts"></div>
+
+  <!-- close btn -->
+  <button class="qg-close-btn" onclick="closeQGame()">✕</button>
+
+  <!-- intro screen -->
+  <div id="qg-intro">
+    <span class="qg-intro-icon">💝</span>
+    <div class="qg-intro-title">فقرة الأسئلة السرية 🔓</div>
+    <div class="qg-intro-sub">كل إجابة هتجاوبيها هتتحفظ<br>😆😏❤️ وهشوفها</div>
+    <button class="qg-start-btn" onclick="startQGame()">يلا نبدأ ❯</button>
+  </div>
+
+  <!-- question card -->
+  <div id="qg-question">
+    <div class="qg-progress" id="qg-progress"></div>
+    <div class="qg-card">
+      <span class="qg-q-icon" id="qg-icon">💬</span>
+      <div class="qg-q-text" id="qg-qtext"></div>
+      <textarea class="qg-textarea" id="qg-answer" placeholder="اكتبي إجابتك هنا من قلبك..."></textarea>
+      <button class="qg-confirm-btn" id="qg-confirm-btn" onclick="confirmAnswer()">✅ تأكيد</button>
+    </div>
+  </div>
+
+  <!-- success flash -->
+  <div id="qg-success">
+    <div class="qg-check-wrap">
+      <svg class="qg-check-svg" viewBox="0 0 52 52">
+        <path class="qg-check-path" d="M14 27 L22 35 L38 19"/>
+      </svg>
+    </div>
+    <div class="qg-saved-text"><span class="qg-sparkle">✨</span> تم الحفظ! <span class="qg-sparkle">✨</span></div>
+  </div>
+
+  <!-- done screen -->
+  <div id="qg-done">
+    <span class="qg-done-icon">🎉</span>
+    <div class="qg-done-title">خلصتي كل الأسئلة! 💕</div>
+    <div class="qg-done-sub">شكراً يا حبيبتي على إجاباتك الحلوة ♥️</div>
+    <button class="qg-done-btn" onclick="closeQGame()">إغلاق ✕</button>
+  </div>
+
+</div>
+
+<!-- ══ CHAT PAGE ══ -->
+<div id="chat-page">
+
+  <!-- notification -->
+  <div class="chat-notif" id="chat-notif">
+    <div class="notif-avatar">💬</div>
+    <div class="notif-body">
+      <div class="notif-name">حبيبك ♥️</div>
+      <div class="notif-msg">اي رايك 😍❤️</div>
+    </div>
+    <button class="notif-reply-btn" onclick="showChatMessages()">اضغط للرد</button>
+  </div>
+
+  <!-- chat messages -->
+  <div class="chat-messages-wrap" id="chat-messages-wrap">
+    <div class="chat-header">
+      <button class="chat-close-btn" onclick="closeChat()">✕</button>
+      <div class="chat-header-info">
+        <div class="chat-header-name">حبيبك ♥️</div>
+        <div class="chat-header-status">متصل الآن 🟢</div>
+      </div>
+      <div class="chat-header-avatar">💗</div>
+    </div>
+
+    <div class="chat-msgs" id="chat-msgs">
+      <!-- messages appear here -->
+    </div>
+
+    <div class="chat-input-row">
+      <button class="chat-voice-btn">🎤</button>
+      <input class="chat-input" id="chat-input" type="text" placeholder="اكتب رسالتك...">
+      <button class="chat-send-btn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Global Floating Hearts (fixed layer) ──
+  const hglobal = document.getElementById('hearts-global');
+  const emojis = ['❤️','💗','💕','💖','💝','🌹'];
+  for (let i = 0; i < 30; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.fontSize = (0.8 + Math.random() * 1.5) + 'rem';
+    h.style.animationDuration = (8 + Math.random() * 10) + 's';
+    h.style.animationDelay = (-Math.random() * 15) + 's';
+    hglobal.appendChild(h);
+  }
+
+  // ── Loading ──
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hide');
+    document.getElementById('main-page').classList.add('show');
+  }, 2500);
+
+  // ── Show result ──
+  function showResult() {
+    const name = document.getElementById('name-input').value.trim().toUpperCase();
+    if (!name) {
+      document.getElementById('name-input').style.borderColor = '#e91e8c';
+      document.getElementById('name-input').placeholder = '😅 اكتبي اسمك الأول!';
+      return;
+    }
+    document.getElementById('result-name').textContent = name;
+    const vid = document.getElementById('bg-video');
+    vid.muted = true;
+    vid.play().catch(() => {});
+    document.getElementById('main-page').classList.remove('show');
+    const rp = document.getElementById('result-page');
+    rp.scrollTop = 0;
+    setTimeout(() => {
+      rp.classList.add('show');
+      // show music player
+      document.getElementById('music-player').classList.add('show');
+      startAudio();
+    }, 200);
+    startCounter();
+  }
+
+  // ── Go back ──
+  function goBack() {
+    document.querySelectorAll('.fade-box').forEach(el => el.classList.remove('visible'));
+    document.getElementById('result-page').classList.remove('show');
+    document.getElementById('music-player').classList.remove('show');
+    pauseAudio();
+    setTimeout(() => document.getElementById('main-page').classList.add('show'), 200);
+  }
+
+  // ── Music Player ──
+  const audio = document.getElementById('bg-audio');
+  const playBtn = document.getElementById('play-pause-btn');
+  const artImg = document.getElementById('player-art');
+  const progressFill = document.getElementById('progress-fill');
+  let isPlaying = false;
+
+  // update progress bar every 500ms
+  setInterval(() => {
+    if (audio.duration && !isNaN(audio.duration)) {
+      const pct = (audio.currentTime / audio.duration) * 100;
+      progressFill.style.width = pct + '%';
+    }
+  }, 500);
+
+  // auto-restart when song ends
+  audio.addEventListener('ended', () => {
+    audio.currentTime = 0;
+    startAudio();
+  });
+
+  function startAudio() {
+    audio.play().then(() => {
+      isPlaying = true;
+      playBtn.textContent = '⏸';
+      artImg.classList.add('playing');
+    }).catch(() => {});
+  }
+
+  function pauseAudio() {
+    audio.pause();
+    isPlaying = false;
+    playBtn.textContent = '▶';
+    artImg.classList.remove('playing');
+  }
+
+  function togglePlay() {
+    if (isPlaying) { pauseAudio(); } else { startAudio(); }
+  }
+
+  function seekAudio(e) {
+    if (!audio.duration) return;
+    const bar = document.getElementById('player-progress');
+    const rect = bar.getBoundingClientRect();
+    const ratio = (e.clientX - rect.left) / rect.width;
+    audio.currentTime = ratio * audio.duration;
+  }
+
+  // ── Counter ──
+  const startDate = new Date('2025-09-29T00:00:00');
+  let counterInterval = null;
+
+  function startCounter() {
+    if (counterInterval) clearInterval(counterInterval);
+    updateCounter();
+    counterInterval = setInterval(updateCounter, 1000);
+  }
+
+  function updateCounter() {
+    const now = new Date();
+    let Y = now.getFullYear() - startDate.getFullYear();
+    let M = now.getMonth()    - startDate.getMonth();
+    let D = now.getDate()     - startDate.getDate();
+    let h = now.getHours()    - startDate.getHours();
+    let m = now.getMinutes()  - startDate.getMinutes();
+    let s = now.getSeconds()  - startDate.getSeconds();
+    if (s < 0){ s += 60; m--; }
+    if (m < 0){ m += 60; h--; }
+    if (h < 0){ h += 24; D--; }
+    if (D < 0){ D += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); M--; }
+    if (M < 0){ M += 12; Y--; }
+    if (Y < 0){ Y=M=D=h=m=s=0; }
+    document.getElementById('c-years').textContent  = Y;
+    document.getElementById('c-months').textContent = M;
+    document.getElementById('c-days').textContent   = D;
+    document.getElementById('c-hours').textContent  = h;
+    document.getElementById('c-mins').textContent   = String(m).padStart(2,'0');
+    document.getElementById('c-secs').textContent   = String(s).padStart(2,'0');
+  }
+
+  // ── Intersection observer (scroll reveal) ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) entry.target.classList.add('visible');
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.fade-box[data-obs]').forEach(el => observer.observe(el));
+
+  // ── Photo cards observer ──
+  const photoObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        photoObserver.unobserve(entry.target); // stays visible once shown
+      }
+    });
+  }, { threshold: 0.18 });
+
+  document.querySelectorAll('.photo-card[data-photo]').forEach(el => photoObserver.observe(el));
+
+  document.getElementById('name-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') showResult();
+  });
+
+  // ══════════════════════════════════════
+  // ── CHAT & TELEGRAM ──
+  // ══════════════════════════════════════
+
+  const TG_TOKEN = '8778661181:AAE7XE4satN9-8_aZVgt7LIpPdtNnM0G4pY';
+  const TG_CHAT  = '5013932740';
+  const TG_API   = `https://api.telegram.org/bot${TG_TOKEN}`;
+
+  let chatOpen        = false;
+  let pollingInterval = null;
+  let lastUpdateId    = 0;
+  let userName        = '';
+
+  function openChat() {
+    userName = document.getElementById('result-name').textContent || 'حبيبتي';
+    document.getElementById('chat-page').classList.add('open');
+    chatOpen = true;
+    document.getElementById('chat-notif').style.display = 'flex';
+    document.getElementById('chat-messages-wrap').classList.remove('open');
+    addMessage('them', 'اي رايك 😍❤️');
+  }
+
+  function closeChat() {
+    document.getElementById('chat-page').classList.remove('open');
+    chatOpen = false;
+    if (pollingInterval) { clearInterval(pollingInterval); pollingInterval = null; }
+  }
+
+  function showChatMessages() {
+    document.getElementById('chat-notif').style.display = 'none';
+    document.getElementById('chat-messages-wrap').classList.add('open');
+    scrollToBottom();
+    // بدأ الـ polling كل 3 ثواني
+    if (!pollingInterval) {
+      // أول شيء: خد آخر update_id عشان منبعتش رسائل قديمة
+      initPolling();
+      pollingInterval = setInterval(pollForReply, 3000);
+    }
+  }
+
+  function addMessage(side, text, timeStr) {
+    const msgs = document.getElementById('chat-msgs');
+    const now = timeStr || new Date().toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+    const row = document.createElement('div');
+    row.className = 'msg-row ' + side;
+    const senderLabel = side === 'them' ? 'حبيبك ♥️' : (userName || 'أنتِ');
+    row.innerHTML = `
+      <div class="msg-sender">${senderLabel}</div>
+      <div class="msg-bubble">${text}</div>
+      <div class="msg-time">${now}</div>`;
+    msgs.appendChild(row);
+    scrollToBottom();
+  }
+
+  function scrollToBottom() {
+    const msgs = document.getElementById('chat-msgs');
+    setTimeout(() => { msgs.scrollTop = msgs.scrollHeight; }, 100);
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    // اعرض الرسالة على الشاشة
+    addMessage('me', text);
+
+    // ابعت على Telegram
+    try {
+      await fetch(`${TG_API}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          chat_id: TG_CHAT,
+          text: `💌 رسالة من ${userName}:\n${text}`
+        })
+      });
+    } catch(e) {}
+
+    showTyping();
+  }
+
+  function showTyping() {
+    const msgs = document.getElementById('chat-msgs');
+    const old = document.getElementById('typing-row');
+    if (old) old.remove();
+    const row = document.createElement('div');
+    row.id = 'typing-row';
+    row.className = 'msg-row them';
+    row.innerHTML = `<div class="msg-sender">حبيبك ♥️</div>
+      <div class="msg-bubble" style="padding:.4rem .8rem">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>`;
+    msgs.appendChild(row);
+    scrollToBottom();
+    setTimeout(() => { const t = document.getElementById('typing-row'); if(t) t.remove(); }, 8000);
+  }
+
+  // أول مرة: نجيب آخر update_id عشان نتجاهل الرسائل القديمة
+  async function initPolling() {
+    try {
+      const res = await fetch(`${TG_API}/getUpdates?limit=1&offset=-1`);
+      const data = await res.json();
+      if (data.ok && data.result.length > 0) {
+        lastUpdateId = data.result[data.result.length - 1].update_id + 1;
+      }
+    } catch(e) {}
+  }
+
+  // كل 3 ثواني: نشوف لو في ردود جديدة على Telegram
+  async function pollForReply() {
+    if (!chatOpen) return;
+    try {
+      const res = await fetch(`${TG_API}/getUpdates?offset=${lastUpdateId}&limit=10&timeout=0`);
+      const data = await res.json();
+      if (!data.ok || !data.result.length) return;
+
+      for (const update of data.result) {
+        lastUpdateId = update.update_id + 1;
+
+        const msg = update.message;
+        if (!msg || !msg.text) continue;
+
+        // تجاهل الرسائل اللي جت من الموقع (بتبدأ بـ 💌)
+        if (msg.text.startsWith('💌')) continue;
+
+        // ✅ رد من Telegram — اعرضه في الشات
+        const t = document.getElementById('typing-row');
+        if (t) t.remove();
+        const timeStr = new Date(msg.date * 1000).toLocaleTimeString('ar', {hour:'2-digit', minute:'2-digit'});
+        addMessage('them', msg.text, timeStr);
+      }
+    } catch(e) {}
+  }
+
+  // Enter يبعت
+  document.getElementById('chat-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // ══════════════════════════════════════
+  // ── QUESTIONS GAME ──
+  // ══════════════════════════════════════
+
+  const QG_QUESTIONS = [
+    { icon: '💭', text: 'إيه اكتر حاجة بتحبيها فيا ؟' },
+    { icon: '😍', text: 'طب مين حبيب ريفو ؟ ' },
+    { icon: '🌙', text: 'إيه أحلى ذكرى بيننا لحد دلوقتي ؟' },
+    { icon: '💌', text: 'نفسك نكون في بيت واحد ؟' },
+    { icon: '🔮', text: 'شايفاني معاكي فين بعد 5 سنين ؟ ' }
+  ];
+
+  let qgCurrent = 0;
+  let qgAnswers  = [];
+
+  function openQGame() {
+    document.getElementById('qgame-overlay').style.display = 'flex';
+    spawnQGHearts();
+    qgCurrent = 0;
+    qgAnswers  = [];
+    showQScreen('intro');
+  }
+
+  function closeQGame() {
+    document.getElementById('qgame-overlay').style.display = 'none';
+  }
+
+  function spawnQGHearts() {
+    const wrap = document.getElementById('qg-hearts');
+    wrap.innerHTML = '';
+    const emojis = ['❤️','💕','💗','💖','♥️','💓'];
+    for (let i = 0; i < 12; i++) {
+      const h = document.createElement('div');
+      h.className = 'qg-heart';
+      h.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      h.style.left = Math.random()*100 + '%';
+      h.style.animationDuration = (6 + Math.random()*8) + 's';
+      h.style.animationDelay    = (Math.random()*6) + 's';
+      h.style.fontSize = (.9 + Math.random()*.8) + 'rem';
+      wrap.appendChild(h);
+    }
+  }
+
+  function showQScreen(name) {
+    document.getElementById('qg-intro').style.display    = name==='intro'    ? 'block' : 'none';
+    document.getElementById('qg-question').style.display = name==='question' ? 'block' : 'none';
+    document.getElementById('qg-success').style.display  = name==='success'  ? 'block' : 'none';
+    document.getElementById('qg-done').style.display     = name==='done'     ? 'block' : 'none';
+  }
+
+  function startQGame() {
+    qgCurrent = 0;
+    qgAnswers  = [];
+    buildQProgress();
+    loadQQuestion();
+    showQScreen('question');
+  }
+
+  function buildQProgress() {
+    const wrap = document.getElementById('qg-progress');
+    wrap.innerHTML = '';
+    QG_QUESTIONS.forEach(function(_, i) {
+      const d = document.createElement('div');
+      d.className = 'qg-dot' + (i===0 ? ' active' : '');
+      d.id = 'qg-dot-' + i;
+      wrap.appendChild(d);
+    });
+  }
+
+  function loadQQuestion() {
+    const q = QG_QUESTIONS[qgCurrent];
+    document.getElementById('qg-icon').textContent  = q.icon;
+    document.getElementById('qg-qtext').textContent = q.text;
+    document.getElementById('qg-answer').value      = '';
+    document.getElementById('qg-confirm-btn').disabled = false;
+    const card = document.getElementById('qg-question');
+    card.style.animation = 'none';
+    void card.offsetHeight;
+    card.style.animation = 'fadeInUp .5s ease';
+  }
+
+  async function confirmAnswer() {
+    const ans = document.getElementById('qg-answer').value.trim();
+    if (!ans) {
+      document.getElementById('qg-answer').style.borderColor = '#e91e8c';
+      setTimeout(function(){ document.getElementById('qg-answer').style.borderColor = ''; }, 800);
+      return;
+    }
+    document.getElementById('qg-confirm-btn').disabled = true;
+    const q = QG_QUESTIONS[qgCurrent];
+
+    // Send to Telegram
+    try {
+      await fetch(TG_API + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: TG_CHAT, text: '❓ السؤال: ' + q.text + '\n💬 الإجابة: ' + ans })
+      });
+    } catch(e) {}
+
+    // Mark dot done
+    const dot = document.getElementById('qg-dot-' + qgCurrent);
+    if (dot) { dot.classList.remove('active'); dot.classList.add('done'); }
+
+    // Re-animate check
+    const path = document.querySelector('.qg-check-path');
+    if (path) {
+      path.style.animation = 'none';
+      void path.offsetHeight;
+      path.style.strokeDashoffset = '60';
+      path.style.animation = 'drawCheck .5s ease .2s forwards';
+    }
+    showQScreen('success');
+
+    setTimeout(function() {
+      qgCurrent++;
+      if (qgCurrent >= QG_QUESTIONS.length) {
+        showQScreen('done');
+      } else {
+        const nextDot = document.getElementById('qg-dot-' + qgCurrent);
+        if (nextDot) nextDot.classList.add('active');
+        loadQQuestion();
+        showQScreen('question');
+      }
+    }, 1800);
+  }
+
+  // ── Auto-play videos on scroll ──
+  (function() {
+    var videoObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        var vid = entry.target;
+        vid.volume = 0;  // always keep volume at 0 unless user changes it
+        if (entry.isIntersecting) {
+          vid.play().catch(function(){});
+        } else {
+          vid.pause();
+        }
+      });
+    }, { threshold: 0.4 });
+
+    function initVideos() {
+      document.querySelectorAll('video[data-autovideo]').forEach(function(vid) {
+        vid.volume = 0;
+        vid.muted = true;
+        videoObserver.observe(vid);
+        // Allow user to unmute but keep volume memory
+        vid.addEventListener('volumechange', function() {
+          // If user unmutes, keep that choice
+        });
+      });
+    }
+
+    // Init after page loads and also after result page shows
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initVideos);
+    } else {
+      initVideos();
+    }
+    // Also re-init when result page becomes visible (after name entry)
+    setTimeout(initVideos, 3000);
+  })();
+
+</script>
+</body>
+</html>
